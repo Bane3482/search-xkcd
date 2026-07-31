@@ -1,0 +1,5 @@
+log_level: DEBUG
+search_address: localhost:80
+update_address: update:81
+words_address: words:82
+concurrency: 10
