@@ -52,18 +52,6 @@ func (s *Server) Stats(ctx context.Context, req *emptypb.Empty) (*updatepb.Stats
 	return core.ToProtoStats(stats), nil
 }
 
-func (s *Server) Get(ctx context.Context, _ *emptypb.Empty) (*updatepb.GetReply, error) {
-	comics, err := s.service.Get(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &updatepb.GetReply{
-		Comics: core.ToProtoComics(comics),
-	}, nil
-}
-
 func (s *Server) Drop(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
 	if err := s.service.Drop(ctx); err != nil {
 		return nil, err

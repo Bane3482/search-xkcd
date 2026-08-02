@@ -1,7 +1,6 @@
 package core
 
 import (
-	"github.com/lib/pq"
 	updatepb "yadro.com/course/proto/update"
 )
 
@@ -21,12 +20,6 @@ type DBStats struct {
 type ServiceStats struct {
 	DBStats
 	ComicsTotal int
-}
-
-type ComicsPQ struct {
-	ID    int            `db:"comics_id"`
-	URL   string         `db:"comics_url"`
-	Words pq.StringArray `db:"words"`
 }
 
 type Comics struct {
@@ -62,31 +55,4 @@ func ToProtoStats(stats ServiceStats) *updatepb.StatsReply {
 		ComicsTotal:   int64(stats.ComicsTotal),
 		ComicsFetched: int64(stats.ComicsFetched),
 	}
-}
-
-func ToProtoComics(comics []Comics) []*updatepb.ComicsInfo {
-	result := make([]*updatepb.ComicsInfo, 0)
-
-	for _, c := range comics {
-		result = append(result, &updatepb.ComicsInfo{
-			Id:    int64(c.ID),
-			Url:   c.URL,
-			Words: c.Words,
-		})
-	}
-
-	return result
-}
-
-func FromPQArray(comics []ComicsPQ) []Comics {
-	result := make([]Comics, len(comics))
-	for i, c := range comics {
-		result[i] = Comics{
-			ID:    c.ID,
-			URL:   c.URL,
-			Words: []string(c.Words),
-		}
-	}
-
-	return result
 }

@@ -13,8 +13,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	searchpb "yadro.com/course/proto/search"
+	"yadro.com/course/search/adapters/db"
 	searchgrpc "yadro.com/course/search/adapters/grpc"
-	"yadro.com/course/search/adapters/update"
 	"yadro.com/course/search/adapters/words"
 	"yadro.com/course/search/config"
 	"yadro.com/course/search/core"
@@ -38,10 +38,10 @@ func main() {
 func run(cfg config.Config, log *slog.Logger) error {
 	log.Info("starting server")
 
-	// update adapter
-	updater, err := update.NewClient(cfg.UpdateAddress, log)
+	// db adapter
+	db, err := db.New(log, cfg.DBAddress)
 	if err != nil {
-		return fmt.Errorf("failed create update client: %v", err)
+		return fmt.Errorf("failed create db client: %v", err)
 	}
 
 	// words adapter
@@ -51,7 +51,7 @@ func run(cfg config.Config, log *slog.Logger) error {
 	}
 
 	// service
-	searcher, err := core.NewService(log, words, updater, cfg.Concurrency)
+	searcher, err := core.NewService(log, db, words)
 	if err != nil {
 		return fmt.Errorf("failed create Update service: %v", err)
 	}

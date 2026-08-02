@@ -24,7 +24,6 @@ const (
 	Update_Status_FullMethodName = "/update.Update/Status"
 	Update_Update_FullMethodName = "/update.Update/Update"
 	Update_Stats_FullMethodName  = "/update.Update/Stats"
-	Update_Get_FullMethodName    = "/update.Update/Get"
 	Update_Drop_FullMethodName   = "/update.Update/Drop"
 )
 
@@ -36,7 +35,6 @@ type UpdateClient interface {
 	Status(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*StatusReply, error)
 	Update(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Stats(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*StatsReply, error)
-	Get(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetReply, error)
 	Drop(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -88,16 +86,6 @@ func (c *updateClient) Stats(ctx context.Context, in *emptypb.Empty, opts ...grp
 	return out, nil
 }
 
-func (c *updateClient) Get(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetReply, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetReply)
-	err := c.cc.Invoke(ctx, Update_Get_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *updateClient) Drop(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -116,7 +104,6 @@ type UpdateServer interface {
 	Status(context.Context, *emptypb.Empty) (*StatusReply, error)
 	Update(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	Stats(context.Context, *emptypb.Empty) (*StatsReply, error)
-	Get(context.Context, *emptypb.Empty) (*GetReply, error)
 	Drop(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUpdateServer()
 }
@@ -139,9 +126,6 @@ func (UnimplementedUpdateServer) Update(context.Context, *emptypb.Empty) (*empty
 }
 func (UnimplementedUpdateServer) Stats(context.Context, *emptypb.Empty) (*StatsReply, error) {
 	return nil, status.Error(codes.Unimplemented, "method Stats not implemented")
-}
-func (UnimplementedUpdateServer) Get(context.Context, *emptypb.Empty) (*GetReply, error) {
-	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedUpdateServer) Drop(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method Drop not implemented")
@@ -239,24 +223,6 @@ func _Update_Stats_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Update_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UpdateServer).Get(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Update_Get_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UpdateServer).Get(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Update_Drop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -297,10 +263,6 @@ var Update_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Stats",
 			Handler:    _Update_Stats_Handler,
-		},
-		{
-			MethodName: "Get",
-			Handler:    _Update_Get_Handler,
 		},
 		{
 			MethodName: "Drop",

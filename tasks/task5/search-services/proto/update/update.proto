@@ -23,16 +23,6 @@ message StatusReply {
   Status status = 1;
 }
 
-message ComicsInfo {
-  int64 id = 1;
-  string url = 2;
-  repeated string words = 3;
-}
-
-message GetReply {
-  repeated ComicsInfo comics = 1;
-}
-
 service Update {
   rpc Ping(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
@@ -41,8 +31,6 @@ service Update {
   rpc Update(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
   rpc Stats(google.protobuf.Empty) returns (StatsReply) {}
-
-  rpc Get(google.protobuf.Empty) returns (GetReply) {}
 
   rpc Drop(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }

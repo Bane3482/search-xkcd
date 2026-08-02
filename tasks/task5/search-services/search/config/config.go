@@ -7,11 +7,10 @@ import (
 )
 
 type Config struct {
-	LogLevel      string `yaml:"log_level" env:"LOG_LEVEL" env-default:"DEBUG"`
-	Address       string `yaml:"search_address" env:"SEARCH_ADDRESS" env-default:"localhost:80"`
-	UpdateAddress string `yaml:"update_address" env:"UPDATE_ADDRESS" env-default:"update:81"`
-	WordsAddress  string `yaml:"words_address" env:"WORDS_ADDRESS" env-default:"words:82"`
-	Concurrency   int    `yaml:"concurrency" env:"SEARCH_CONCURRENCY" env-default:"1"`
+	LogLevel     string `yaml:"log_level" env:"LOG_LEVEL" env-default:"DEBUG"`
+	Address      string `yaml:"search_address" env:"SEARCH_ADDRESS" env-default:"localhost:80"`
+	DBAddress    string `yaml:"DB_address" env:"DB_ADDRESS" env-default:"db:81"`
+	WordsAddress string `yaml:"words_address" env:"WORDS_ADDRESS" env-default:"words:82"`
 }
 
 func MustLoad(configPath string) Config {

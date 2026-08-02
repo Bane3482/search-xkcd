@@ -168,17 +168,6 @@ func (s *Service) Status(ctx context.Context) ServiceStatus {
 	return StatusIdle
 }
 
-func (s *Service) Get(ctx context.Context) ([]Comics, error) {
-	comics, err := s.db.Get(ctx)
-
-	if err != nil {
-		s.log.Error("update service get", "error", err)
-		return nil, err
-	}
-
-	return comics, nil
-}
-
 func (s *Service) Drop(ctx context.Context) error {
 	return s.db.Drop(ctx)
 }

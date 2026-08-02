@@ -183,110 +183,6 @@ func (x *StatusReply) GetStatus() Status {
 	return Status_STATUS_UNSPECIFIED
 }
 
-type ComicsInfo struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Url           string                 `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
-	Words         []string               `protobuf:"bytes,3,rep,name=words,proto3" json:"words,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ComicsInfo) Reset() {
-	*x = ComicsInfo{}
-	mi := &file_proto_update_update_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ComicsInfo) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ComicsInfo) ProtoMessage() {}
-
-func (x *ComicsInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_update_update_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ComicsInfo.ProtoReflect.Descriptor instead.
-func (*ComicsInfo) Descriptor() ([]byte, []int) {
-	return file_proto_update_update_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *ComicsInfo) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *ComicsInfo) GetUrl() string {
-	if x != nil {
-		return x.Url
-	}
-	return ""
-}
-
-func (x *ComicsInfo) GetWords() []string {
-	if x != nil {
-		return x.Words
-	}
-	return nil
-}
-
-type GetReply struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Comics        []*ComicsInfo          `protobuf:"bytes,1,rep,name=comics,proto3" json:"comics,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetReply) Reset() {
-	*x = GetReply{}
-	mi := &file_proto_update_update_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetReply) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetReply) ProtoMessage() {}
-
-func (x *GetReply) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_update_update_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetReply.ProtoReflect.Descriptor instead.
-func (*GetReply) Descriptor() ([]byte, []int) {
-	return file_proto_update_update_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *GetReply) GetComics() []*ComicsInfo {
-	if x != nil {
-		return x.Comics
-	}
-	return nil
-}
-
 var File_proto_update_update_proto protoreflect.FileDescriptor
 
 const file_proto_update_update_proto_rawDesc = "" +
@@ -300,24 +196,16 @@ const file_proto_update_update_proto_rawDesc = "" +
 	"\fcomics_total\x18\x03 \x01(\x03R\vcomicsTotal\x12%\n" +
 	"\x0ecomics_fetched\x18\x04 \x01(\x03R\rcomicsFetched\"5\n" +
 	"\vStatusReply\x12&\n" +
-	"\x06status\x18\x01 \x01(\x0e2\x0e.update.StatusR\x06status\"D\n" +
-	"\n" +
-	"ComicsInfo\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x10\n" +
-	"\x03url\x18\x02 \x01(\tR\x03url\x12\x14\n" +
-	"\x05words\x18\x03 \x03(\tR\x05words\"6\n" +
-	"\bGetReply\x12*\n" +
-	"\x06comics\x18\x01 \x03(\v2\x12.update.ComicsInfoR\x06comics*E\n" +
+	"\x06status\x18\x01 \x01(\x0e2\x0e.update.StatusR\x06status*E\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x0f\n" +
 	"\vSTATUS_IDLE\x10\x01\x12\x12\n" +
-	"\x0eSTATUS_RUNNING\x10\x022\xdb\x02\n" +
+	"\x0eSTATUS_RUNNING\x10\x022\xa8\x02\n" +
 	"\x06Update\x128\n" +
 	"\x04Ping\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x127\n" +
 	"\x06Status\x12\x16.google.protobuf.Empty\x1a\x13.update.StatusReply\"\x00\x12:\n" +
 	"\x06Update\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x125\n" +
-	"\x05Stats\x12\x16.google.protobuf.Empty\x1a\x12.update.StatsReply\"\x00\x121\n" +
-	"\x03Get\x12\x16.google.protobuf.Empty\x1a\x10.update.GetReply\"\x00\x128\n" +
+	"\x05Stats\x12\x16.google.protobuf.Empty\x1a\x12.update.StatsReply\"\x00\x128\n" +
 	"\x04Drop\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00B\x1fZ\x1dyadro.com/course/proto/updateb\x06proto3"
 
 var (
@@ -333,35 +221,30 @@ func file_proto_update_update_proto_rawDescGZIP() []byte {
 }
 
 var file_proto_update_update_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_update_update_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_proto_update_update_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_proto_update_update_proto_goTypes = []any{
 	(Status)(0),           // 0: update.Status
 	(*StatsReply)(nil),    // 1: update.StatsReply
 	(*StatusReply)(nil),   // 2: update.StatusReply
-	(*ComicsInfo)(nil),    // 3: update.ComicsInfo
-	(*GetReply)(nil),      // 4: update.GetReply
-	(*emptypb.Empty)(nil), // 5: google.protobuf.Empty
+	(*emptypb.Empty)(nil), // 3: google.protobuf.Empty
 }
 var file_proto_update_update_proto_depIdxs = []int32{
 	0, // 0: update.StatusReply.status:type_name -> update.Status
-	3, // 1: update.GetReply.comics:type_name -> update.ComicsInfo
-	5, // 2: update.Update.Ping:input_type -> google.protobuf.Empty
-	5, // 3: update.Update.Status:input_type -> google.protobuf.Empty
-	5, // 4: update.Update.Update:input_type -> google.protobuf.Empty
-	5, // 5: update.Update.Stats:input_type -> google.protobuf.Empty
-	5, // 6: update.Update.Get:input_type -> google.protobuf.Empty
-	5, // 7: update.Update.Drop:input_type -> google.protobuf.Empty
-	5, // 8: update.Update.Ping:output_type -> google.protobuf.Empty
-	2, // 9: update.Update.Status:output_type -> update.StatusReply
-	5, // 10: update.Update.Update:output_type -> google.protobuf.Empty
-	1, // 11: update.Update.Stats:output_type -> update.StatsReply
-	4, // 12: update.Update.Get:output_type -> update.GetReply
-	5, // 13: update.Update.Drop:output_type -> google.protobuf.Empty
-	8, // [8:14] is the sub-list for method output_type
-	2, // [2:8] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	3, // 1: update.Update.Ping:input_type -> google.protobuf.Empty
+	3, // 2: update.Update.Status:input_type -> google.protobuf.Empty
+	3, // 3: update.Update.Update:input_type -> google.protobuf.Empty
+	3, // 4: update.Update.Stats:input_type -> google.protobuf.Empty
+	3, // 5: update.Update.Drop:input_type -> google.protobuf.Empty
+	3, // 6: update.Update.Ping:output_type -> google.protobuf.Empty
+	2, // 7: update.Update.Status:output_type -> update.StatusReply
+	3, // 8: update.Update.Update:output_type -> google.protobuf.Empty
+	1, // 9: update.Update.Stats:output_type -> update.StatsReply
+	3, // 10: update.Update.Drop:output_type -> google.protobuf.Empty
+	6, // [6:11] is the sub-list for method output_type
+	1, // [1:6] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_proto_update_update_proto_init() }
@@ -375,7 +258,7 @@ func file_proto_update_update_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_update_update_proto_rawDesc), len(file_proto_update_update_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   4,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

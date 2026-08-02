@@ -156,6 +156,8 @@ func NewSearchHandler(log *slog.Logger, searcher core.Searcher) http.HandlerFunc
 			limit = 10
 		}
 
+		log.Info("limit", "value", limit)
+
 		reply, err := searcher.Search(context.Background(), phrase, limit)
 
 		if err != nil {

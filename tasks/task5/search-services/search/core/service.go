@@ -1,69 +1,73 @@
 package core
 
 import (
+	"cmp"
 	"context"
-	"fmt"
 	"log/slog"
+	"maps"
 	"slices"
-	"sort"
 )
 
 type Service struct {
-	log        *slog.Logger
-	words      Words
-	update     Updater
-	concurrent int
+	log   *slog.Logger
+	db    DB
+	words Words
 }
 
 func NewService(
 	log *slog.Logger,
+	db DB,
 	words Words,
-	update Updater,
-	concurrent int,
 ) (*Service, error) {
-	if concurrent < 1 {
-		return nil, fmt.Errorf("wrong concurrency specified: %d", concurrent)
-	}
 	return &Service{
-		log:        log,
-		words:      words,
-		update:     update,
-		concurrent: concurrent,
+		log:   log,
+		db:    db,
+		words: words,
 	}, nil
 }
 
 type Task func(context.Context) error
 
-func (s *Service) Search(ctx context.Context, phrase string, limit int) ([]*Comics, error) {
-	norm, err := s.words.Norm(ctx, phrase)
+func (s *Service) Search(ctx context.Context, phrase string, limit int) ([]ComicsInfo, error) {
+	keywords, err := s.words.Norm(ctx, phrase)
 
 	if err != nil {
-		s.log.Error("service norm", "error", err)
+		s.log.Error("search service norm", "error", err)
 		return nil, err
 	}
 
-	comics, err := s.update.Get(ctx)
+	count := make(map[int]int)
 
-	if err != nil {
-		s.log.Error("service get", "error", err)
-		return nil, err
+	for _, keyword := range keywords {
+		IDs, err := s.db.Search(ctx, keyword)
+
+		if err != nil {
+			s.log.Error("search service search", "error", err)
+			return nil, err
+		}
+
+		for _, id := range IDs {
+			count[id]++
+		}
 	}
 
-	sort.Slice(comics, func(i, j int) bool {
-		return comics[i].URL < comics[j].URL
+	relevant := slices.SortedFunc(maps.Keys(count), func(i, j int) int {
+		return cmp.Compare(count[j], count[i])
 	})
 
-	result := make([]*Comics, 0)
+	limit = min(len(relevant), limit)
 
-	for _, c := range comics {
-		if slices.ContainsFunc(c.Words, func(el string) bool {
-			return slices.Contains(norm, el)
-		}) {
-			result = append(result, c)
-			if len(result) == limit {
-				break
-			}
+	result := make([]ComicsInfo, limit)
+
+	for i := 0; i < limit; i++ {
+		info, err := s.db.Get(ctx, relevant[i])
+
+		if err != nil {
+			s.log.Error("search service get", "error", err)
+			return nil, err
 		}
+
+		result[i] = info
 	}
 
 	return result, nil

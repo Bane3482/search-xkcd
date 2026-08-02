@@ -2,8 +2,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"log/slog"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -99,22 +97,6 @@ func (db *DB) IDs(ctx context.Context) ([]int, error) {
 	}
 
 	return idList, nil
-}
-
-func (db *DB) Get(ctx context.Context) ([]core.Comics, error) {
-	var comicsPQ []core.ComicsPQ
-
-	err := db.conn.SelectContext(ctx, &comicsPQ, `SELECT comics_id, comics_url, words FROM comics;`)
-
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
-		db.log.Error("db get", "error", err)
-		return nil, err
-	}
-
-	return core.FromPQArray(comicsPQ), nil
 }
 
 func (db *DB) Drop(ctx context.Context) error {
