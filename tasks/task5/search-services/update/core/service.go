@@ -121,7 +121,7 @@ func (s *Service) Update(ctx context.Context) error {
 				}
 			}
 
-			s.log.Error("done task", "cur", cur+1)
+			s.log.Info("done task", "cur", cur+1)
 
 			return s.db.Add(ctx, comics)
 		}):
