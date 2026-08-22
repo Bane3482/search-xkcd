@@ -26,9 +26,22 @@ func NewClient(address string, log *slog.Logger) (*Client, error) {
 }
 
 func (c Client) Norm(ctx context.Context, phrase string) ([]string, error) {
-	return nil, nil
+	resp, err := c.client.Norm(ctx, &wordspb.WordsRequest{Phrase: phrase})
+
+	if err != nil {
+		c.log.Error("words client norm", "error", err)
+		return nil, err
+	}
+
+	return resp.Words, nil
 }
 
 func (c Client) Ping(ctx context.Context) error {
-	return nil
+	_, err := c.client.Ping(ctx, nil)
+
+	if err != nil {
+		c.log.Error("words client ping", "error", err)
+	}
+
+	return err
 }

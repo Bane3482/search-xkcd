@@ -12,24 +12,22 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	updatepb "yadro.com/course/proto/update"
-	"yadro.com/course/update/adapters/db"
-	updategrpc "yadro.com/course/update/adapters/grpc"
-	"yadro.com/course/update/adapters/words"
-	"yadro.com/course/update/adapters/xkcd"
-	"yadro.com/course/update/config"
-	"yadro.com/course/update/core"
+	searchpb "yadro.com/course/proto/search"
+	"yadro.com/course/search/adapters/db"
+	searchgrpc "yadro.com/course/search/adapters/grpc"
+	"yadro.com/course/search/adapters/initor"
+	"yadro.com/course/search/adapters/words"
+	"yadro.com/course/search/config"
+	"yadro.com/course/search/core"
 )
 
 func main() {
-
-	// config
 	var configPath string
 	flag.StringVar(&configPath, "config", "", "server configuration file")
 	flag.Parse()
+
 	cfg := config.MustLoad(configPath)
 
-	// logger
 	log := mustMakeLogger(cfg.LogLevel)
 
 	if err := run(cfg, log); err != nil {
@@ -40,31 +38,29 @@ func main() {
 
 func run(cfg config.Config, log *slog.Logger) error {
 	log.Info("starting server")
-	log.Debug("debug messages are enabled")
 
-	// database adapter
+	// db adapter
 	storage, err := db.New(log, cfg.DBAddress)
 	if err != nil {
-		return fmt.Errorf("failed to connect to db: %v", err)
+		return fmt.Errorf("failed create db client: %v", err)
 	}
 	if err := storage.Migrate(); err != nil {
 		return fmt.Errorf("failed to migrate db: %v", err)
 	}
 
-	// xkcd adapter
-	xkcd, err := xkcd.NewClient(cfg.XKCD.URL, cfg.XKCD.Timeout, log)
-	if err != nil {
-		return fmt.Errorf("failed create XKCD client: %v", err)
-	}
-
 	// words adapter
 	words, err := words.NewClient(cfg.WordsAddress, log)
 	if err != nil {
-		return fmt.Errorf("failed create Words client: %v", err)
+		return fmt.Errorf("failed create words client: %v", err)
 	}
 
+	//initor
+	initService := initor.New(log, storage)
+
+	wg := initService.Init(context.Background(), cfg.IndexTTL)
+
 	// service
-	updater, err := core.NewService(log, storage, xkcd, words, cfg.XKCD.Concurrency)
+	searcher, err := core.NewService(log, storage, words)
 	if err != nil {
 		return fmt.Errorf("failed create Update service: %v", err)
 	}
@@ -76,21 +72,25 @@ func run(cfg config.Config, log *slog.Logger) error {
 	}
 
 	s := grpc.NewServer()
-	updatepb.RegisterUpdateServer(s, updategrpc.NewServer(updater))
+	searchpb.RegisterSearchServer(s, searchgrpc.NewServer(searcher))
 	reflection.Register(s)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+
 	defer stop()
 
 	go func() {
 		<-ctx.Done()
-		log.Debug("shutting down server")
+		log.Error("shutting down server")
 		s.GracefulStop()
 	}()
 
 	if err := s.Serve(listener); err != nil {
 		return fmt.Errorf("failed to serve: %v", err)
 	}
+
+	wg.Wait()
+
 	return nil
 }
 

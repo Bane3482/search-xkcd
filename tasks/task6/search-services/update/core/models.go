@@ -1,5 +1,9 @@
 package core
 
+import (
+	updatepb "yadro.com/course/proto/update"
+)
+
 type ServiceStatus string
 
 const (
@@ -25,7 +29,30 @@ type Comics struct {
 }
 
 type XKCDInfo struct {
-	ID          int
-	URL         string
-	Description string
+	ID         int    `json:"num"`
+	URL        string `json:"img"`
+	Title      string `json:"title"`
+	SafeTitle  string `json:"safe_title"`
+	Transcript string `json:"transcript"`
+	Alt        string `json:"alt"`
+}
+
+func ToProtoStatus(status ServiceStatus) updatepb.Status {
+	switch status {
+	case StatusIdle:
+		return updatepb.Status_STATUS_IDLE
+	case StatusRunning:
+		return updatepb.Status_STATUS_RUNNING
+	default:
+		return updatepb.Status_STATUS_UNSPECIFIED
+	}
+}
+
+func ToProtoStats(stats ServiceStats) *updatepb.StatsReply {
+	return &updatepb.StatsReply{
+		WordsTotal:    int64(stats.WordsTotal),
+		WordsUnique:   int64(stats.WordsUnique),
+		ComicsTotal:   int64(stats.ComicsTotal),
+		ComicsFetched: int64(stats.ComicsFetched),
+	}
 }

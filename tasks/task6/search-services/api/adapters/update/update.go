@@ -5,7 +5,9 @@ import (
 	"log/slog"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 	"yadro.com/course/api/core"
 	updatepb "yadro.com/course/proto/update"
 )
@@ -27,21 +29,61 @@ func NewClient(address string, log *slog.Logger) (*Client, error) {
 }
 
 func (c Client) Ping(ctx context.Context) error {
-	return nil
+	_, err := c.client.Ping(ctx, nil)
+
+	if err != nil {
+		c.log.Error("update client ping")
+	}
+
+	return err
 }
 
-func (c Client) Status(ctx context.Context) (core.UpdateStatus, error) {
-	return core.StatusUpdateUnknown, nil
+func (c Client) Status(ctx context.Context) (core.StatusUpdate, error) {
+	resp, err := c.client.Status(ctx, nil)
+
+	if err != nil {
+		c.log.Error("update client status", "error", err)
+		return core.StatusUpdateUnknown, err
+	}
+
+	return core.FromProtoStatus(resp.Status), nil
 }
 
 func (c Client) Stats(ctx context.Context) (core.UpdateStats, error) {
-	return core.UpdateStats{}, nil
+	resp, err := c.client.Stats(ctx, nil)
+
+	if err != nil {
+		c.log.Error("update client stats", "error", err)
+		return core.UpdateStats{}, err
+	}
+
+	return core.UpdateStats{
+		WordsTotal:    int(resp.WordsTotal),
+		WordsUnique:   int(resp.WordsUnique),
+		ComicsFetched: int(resp.ComicsFetched),
+		ComicsTotal:   int(resp.ComicsTotal),
+	}, nil
+
 }
 
 func (c Client) Update(ctx context.Context) error {
-	return nil
+	_, err := c.client.Update(ctx, nil)
+
+	if err != nil {
+		c.log.Error("update client update", "error", err)
+		if status.Code(err) == codes.AlreadyExists {
+			return core.ErrAlreadyExists
+		}
+	}
+	return err
 }
 
 func (c Client) Drop(ctx context.Context) error {
-	return nil
+	_, err := c.client.Drop(ctx, nil)
+
+	if err != nil {
+		c.log.Error("update client drop", "error", err)
+	}
+
+	return err
 }

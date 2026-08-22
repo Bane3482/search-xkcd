@@ -13,11 +13,14 @@ type Pinger interface {
 type Updater interface {
 	Update(context.Context) error
 	Stats(context.Context) (UpdateStats, error)
-	Status(context.Context) (UpdateStatus, error)
+	Status(context.Context) (StatusUpdate, error)
 	Drop(context.Context) error
 }
 
 type Searcher interface {
-	Search(context.Context, string, int) ([]Comics, error)
-	SearchIndex(context.Context, string, int) ([]Comics, error)
+	Search(context.Context, string, int) (ComicsReply, error)
+}
+
+type ISearcher interface {
+	ISearch(context.Context, string, int) (ComicsReply, error)
 }
