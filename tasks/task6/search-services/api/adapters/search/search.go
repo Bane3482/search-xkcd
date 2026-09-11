@@ -50,8 +50,8 @@ func (c Client) Search(ctx context.Context, phrase string, limit int) (core.Comi
 	return core.FromProtoComicsReply(reply), nil
 }
 
-func (c Client) ISearch(ctx context.Context, phrase string, limit int) (core.ComicsReply, error) {
-	reply, err := c.client.ISearch(ctx, &searchpb.SearchRequest{Phrase: phrase, Limit: int64(limit)})
+func (c Client) SearchIndex(ctx context.Context, phrase string, limit int) (core.ComicsReply, error) {
+	reply, err := c.client.SearchIndex(ctx, &searchpb.SearchRequest{Phrase: phrase, Limit: int64(limit)})
 
 	if err != nil {
 		c.log.Error("search client search", "error", err)

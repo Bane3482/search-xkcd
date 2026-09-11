@@ -209,7 +209,7 @@ func NewISearchHandler(log *slog.Logger, searcher core.ISearcher) http.HandlerFu
 
 		log.Info("limit", "value", limit)
 
-		reply, err := searcher.ISearch(context.Background(), phrase, limit)
+		reply, err := searcher.SearchIndex(context.Background(), phrase, limit)
 
 		if err != nil {
 			log.Error("search handler search", "error", err)

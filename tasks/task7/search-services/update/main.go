@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"syscall"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -24,7 +25,7 @@ func main() {
 
 	// config
 	var configPath string
-	flag.StringVar(&configPath, "config", "config.yaml", "server configuration file")
+	flag.StringVar(&configPath, "config", "", "server configuration file")
 	flag.Parse()
 	cfg := config.MustLoad(configPath)
 
@@ -78,8 +79,7 @@ func run(cfg config.Config, log *slog.Logger) error {
 	updatepb.RegisterUpdateServer(s, updategrpc.NewServer(updater))
 	reflection.Register(s)
 
-	// context for Ctrl-C
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 	go func() {

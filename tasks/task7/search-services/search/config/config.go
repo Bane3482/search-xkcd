@@ -1,0 +1,32 @@
+package config
+
+import (
+	"log"
+	"time"
+
+	"github.com/ilyakaznacheev/cleanenv"
+)
+
+type Config struct {
+	LogLevel     string        `yaml:"log_level" env:"LOG_LEVEL" env-default:"DEBUG"`
+	Address      string        `yaml:"search_address" env:"SEARCH_ADDRESS" env-default:"localhost:80"`
+	DBAddress    string        `yaml:"DB_address" env:"DB_ADDRESS" env-default:"db:81"`
+	WordsAddress string        `yaml:"words_address" env:"WORDS_ADDRESS" env-default:"words:82"`
+	IndexTTL     time.Duration `yaml:"index_ttl" env:"INDEX_TTL" env-default:"20s"`
+}
+
+func MustLoad(configPath string) Config {
+	var cfg Config
+
+	if configPath != "" {
+		if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
+			log.Fatalf("cannot read config %q: %s", configPath, err)
+		}
+	} else {
+		if err := cleanenv.ReadEnv(&cfg); err != nil {
+			log.Fatalf("cannot read env: %s", err)
+		}
+	}
+
+	return cfg
+}

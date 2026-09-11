@@ -22,5 +22,5 @@ type Searcher interface {
 }
 
 type ISearcher interface {
-	ISearch(context.Context, string, int) (ComicsReply, error)
+	SearchIndex(context.Context, string, int) (ComicsReply, error)
 }

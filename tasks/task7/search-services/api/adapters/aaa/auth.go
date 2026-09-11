@@ -1,11 +1,13 @@
 package aaa
 
 import (
-	"errors"
 	"fmt"
 	"log/slog"
 	"os"
 	"time"
+
+	"yadro.com/course/api/adapters/verify"
+	"yadro.com/course/api/core"
 )
 
 const secretKey = "something secret here" // token sign key
@@ -38,9 +40,24 @@ func New(tokenTTL time.Duration, log *slog.Logger) (AAA, error) {
 }
 
 func (a AAA) Login(name, password string) (string, error) {
-	return "", errors.New("implement me")
+	if password1, ok := a.users[name]; ok && password1 == password {
+		token, err := verify.CreateToken(adminRole, secretKey, a.tokenTTL)
+
+		if err != nil {
+			a.log.Error("aaa login", "error", err)
+			return "", err
+		}
+		return token, nil
+	}
+	return "", core.ErrNotFound
 }
 
 func (a AAA) Verify(tokenString string) error {
-	return errors.New("implement me")
+	err := verify.VerifyToken(tokenString, secretKey)
+
+	if err != nil {
+		a.log.Error("aaa verify", "error", err)
+	}
+
+	return err
 }

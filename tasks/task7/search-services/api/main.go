@@ -10,14 +10,19 @@ import (
 	"os"
 	"os/signal"
 
+	"yadro.com/course/api/adapters/aaa"
 	"yadro.com/course/api/adapters/rest"
+	"yadro.com/course/api/adapters/rest/middleware"
+	"yadro.com/course/api/adapters/search"
 	"yadro.com/course/api/adapters/update"
+	"yadro.com/course/api/adapters/words"
 	"yadro.com/course/api/config"
+	"yadro.com/course/api/core"
 )
 
 func main() {
 	var configPath string
-	flag.StringVar(&configPath, "config", "config.yaml", "server configuration file")
+	flag.StringVar(&configPath, "config", "", "server configuration file")
 	flag.Parse()
 
 	cfg := config.MustLoad(configPath)
@@ -27,18 +32,29 @@ func main() {
 	log.Info("starting server")
 	log.Debug("debug messages are enabled")
 
+	wordsClient, err := words.NewClient(cfg.WordsAddress, log)
+
 	updateClient, err := update.NewClient(cfg.UpdateAddress, log)
 	if err != nil {
 		log.Error("cannot init update adapter", "error", err)
 		os.Exit(1)
 	}
 
+	searchClient, err := search.NewClient(cfg.SearchAddress, log)
+
+	auth, err := aaa.New(cfg.TokenTTL, log)
+
 	mux := http.NewServeMux()
 
-	mux.Handle("POST /api/db/update", rest.NewUpdateHandler(log, updateClient))
-	mux.Handle("GET /api/db/stats", rest.NewUpdateStatsHandler(log, updateClient))
-	mux.Handle("GET /api/db/status", rest.NewUpdateStatusHandler(log, updateClient))
-	mux.Handle("DELETE /api/db", rest.NewDropHandler(log, updateClient))
+	mux.Handle("GET /metrics", rest.NewMetricsHandler())
+	mux.Handle("GET /api/ping", middleware.WithMetrics(rest.NewPingHandler(log, map[string]core.Pinger{"words": wordsClient, "update": updateClient, "search": searchClient})))
+	mux.Handle("POST /api/login", middleware.WithMetrics(rest.NewLoginHandler(log, auth)))
+	mux.Handle("POST /api/db/update", middleware.WithMetrics(middleware.Auth(rest.NewUpdateHandler(log, updateClient), auth)))
+	mux.Handle("GET /api/db/stats", middleware.WithMetrics(rest.NewUpdateStatsHandler(log, updateClient)))
+	mux.Handle("GET /api/db/status", middleware.WithMetrics(rest.NewUpdateStatusHandler(log, updateClient)))
+	mux.Handle("DELETE /api/db", middleware.WithMetrics(middleware.Auth(rest.NewDropHandler(log, updateClient), auth)))
+	mux.Handle("GET /api/search", middleware.WithMetrics(middleware.Concurrency(rest.NewSearchHandler(log, searchClient), cfg.SearchConcurrency)))
+	mux.Handle("GET /api/isearch", middleware.WithMetrics(middleware.Rate(rest.NewSearchIndexHandler(log, searchClient), cfg.SearchRate)))
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()

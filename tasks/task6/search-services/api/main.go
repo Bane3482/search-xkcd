@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"yadro.com/course/api/adapters/rest"
 	"yadro.com/course/api/adapters/search"
@@ -69,8 +70,11 @@ func main() {
 
 	go func() {
 		<-ctx.Done()
+		tCtx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel()
+
 		log.Debug("shutting down server")
-		if err := server.Shutdown(context.Background()); err != nil {
+		if err := server.Shutdown(tCtx); err != nil {
 			log.Error("erroneous shutdown", "error", err)
 		}
 	}()
